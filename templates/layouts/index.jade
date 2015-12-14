@@ -1,0 +1,12 @@
+each post in posts
+  div&attributes(postAttributes)
+    a(href="/blog/posts/"+post.slug)&attributes(titleAttributes)
+      h2 post.name
+    div&attributes(dateAttributes) post.createdAt
+    each tag in post.tags
+      a(href="/blog/tags/"+tag.slug)&attributes(linkAttributes) tag.name
+    a(href="/blog/posts/"+post.slug+"#comments")&attributes(linkAttributes)
+    br
+    p post.preview
+    br
+    a(href="/blog/posts/"+post.slug)&attributes(buttonAttributes) Read more

@@ -1,0 +1,27 @@
+{
+  "name": "keystone-blog",
+  "version": "0.0.1",
+  "description": "A Node.js module for quickly and easily loading a blog into an existing Keystone.js implementation.",
+  "main": "keystone-blog.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+github.com:lighthousecatholicmedia/keystone-blog.git"
+  },
+  "author": "Chas Mrozek",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lighthousecatholicmedia/keystone-blog/issues"
+  },
+  "homepage": "https://github.com/lighthousecatholicmedia/keystone-blog#readme",
+  "dependencies": {
+    "bluebird": "^3.0.6",
+    "jade": "^1.11.0",
+    "lodash": "^3.10.1"
+  },
+  "peerDependencies": {
+    "keystone": ">=0.3.15"
+  }
+}
