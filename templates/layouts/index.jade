@@ -1,33 +1,32 @@
 each post in obj.results
-  div.container
-    .row
-      a(href="/blog/posts/"+post.slug)
-        h2= post.name
-    .row
-      span= moment(post.createdAt).format(dateFormat)
-      | &nbsp;
-      - var needsComma = false
-      each tag in post.tags
-        if needsComma
-          | , 
-        a(href="/blog/tags/"+tag.slug)= tag.name
-        - needsComma = true
-      | &nbsp;
-      a(href="/blog/posts/"+post.slug+"#comments") Comments
-    .row
-      p= post.preview
-    .row
-      a(href="/blog/posts/"+post.slug) Read more
-//- if totalPages > 1
-//-   ul.pagination
-//-     if previousPage
-//-       li: a(href='?page=' + previousPage)= Previous
-//-     else
-//-       li.disabled: a(href='?page=' + 1)= Previous
-//-     each p, i in totalPages
-//-       li(class=currentPage === p ? 'active' : null)
-//-         a(href='?page=' + (p === '...' ? (i ? totalPages : 1) : p ))= p
-//-     if posts.next
-//-       li: a(href='?page=' + nextPage)= Next
-//-     else
-//-       li.disabled: a(href='?page=' + totalPages)= Next
+  .row.post-name
+    a(href="/blog/"+post.slug)
+      h2= post.name
+  .row.post-details
+    span= moment(post.createdAt).format(dateFormat)
+    | &nbsp;
+    - var needsComma = false
+    each tag in post.tags
+      if needsComma
+        | , 
+      a(href="/blog?tag="+tag.slug)= tag.name
+      - needsComma = true
+    | &nbsp;
+    a(href="/blog/"+post.slug+"#comments") Comments
+  .row.post-preview
+    p= post.preview
+  .row.read-more
+    a(href="/blog/"+post.slug) Read more
+if obj.totalPages > 1
+  ul.pagination
+    if obj.previous
+      li: a(href='?page=' + obj.previous)= Previous
+    else
+      li.disabled: a(href='?page=' + 1)= Previous
+    each p, i in obj.totalPages
+      li(class=obj.currentPage === p ? 'active' : null)
+        a(href='?page=' + (p === '...' ? (i ? obj.totalPages : 1) : p ))= p
+    if obj.next
+      li: a(href='?page=' + obj.next)= Next
+    else
+      li.disabled: a(href='?page=' + obj.totalPages)= Next
