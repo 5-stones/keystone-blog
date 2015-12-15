@@ -1,9 +1,9 @@
-each post in posts
-  div&attributes(postAttributes)
-    .row&attributes(headerAttributes)
+each post in obj.results
+  div.container
+    .row
       a(href="/blog/posts/"+post.slug)
         h2= post.name
-    .row&attributes(subHeaderAttributes)
+    .row
       span= moment(post.createdAt).format(dateFormat)
       | &nbsp;
       - var needsComma = false
@@ -14,7 +14,20 @@ each post in posts
         - needsComma = true
       | &nbsp;
       a(href="/blog/posts/"+post.slug+"#comments") Comments
-    .row&attributes(previewAttributes)
+    .row
       p= post.preview
-    .row&attributes(buttonAttributes)
+    .row
       a(href="/blog/posts/"+post.slug) Read more
+//- if totalPages > 1
+//-   ul.pagination
+//-     if previousPage
+//-       li: a(href='?page=' + previousPage)= Previous
+//-     else
+//-       li.disabled: a(href='?page=' + 1)= Previous
+//-     each p, i in totalPages
+//-       li(class=currentPage === p ? 'active' : null)
+//-         a(href='?page=' + (p === '...' ? (i ? totalPages : 1) : p ))= p
+//-     if posts.next
+//-       li: a(href='?page=' + nextPage)= Next
+//-     else
+//-       li.disabled: a(href='?page=' + totalPages)= Next

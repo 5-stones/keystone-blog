@@ -23,7 +23,7 @@ BlogPost.add({
 
   preview: { type: Types.Textarea, required: true, initial: true },
   body: { type: Types.Markdown, required: true, initial: true },
-	createdAt: { type: Date, default: Date.now }
+	createdAt: { type: Date, default: Date.now, noedit: true }
 });
 
 BlogPost.register();

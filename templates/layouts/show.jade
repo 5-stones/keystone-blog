@@ -1,0 +1,16 @@
+div.container
+  .row
+    h2= post.name
+  .row
+    span= moment(post.createdAt).format(dateFormat)
+    | &nbsp;
+    - var needsComma = false
+    each tag in post.tags
+      if needsComma
+        | , 
+      a(href="/blog/tags/"+tag.slug)= tag.name
+      - needsComma = true
+    | &nbsp;
+    a(href="#comments") Comments
+  .row
+    p post.body
