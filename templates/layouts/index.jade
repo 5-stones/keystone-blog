@@ -17,17 +17,18 @@ each post in obj.results
     .row.post-preview
       p= post.preview
     .row.read-more
-      a(href="/blog/"+post.slug) Read more
+      a(href="/blog/"+post.slug).btn Read more
 if obj.totalPages > 1
   ul.pagination
     if obj.previous
-      li.pagination-previous: a(href='?page=' + obj.previous) Prev
+      li.pagination-previous: span: a(href='?page=' + obj.previous) Prev
     else
-      li.pagination-previous.disabled: a(href='?page=' + 1) Prev
+      li.pagination-previous.disabled: span: a(href='?page=' + 1) Prev
     each p, i in obj.pages
       li.pagination-index(class=obj.currentPage === p ? 'active' : null)
-        a(href='?page=' + (p === '...' ? (i ? obj.totalPages : 1) : p ))= p
+        span
+          a(href='?page=' + (p === '...' ? (i ? obj.totalPages : 1) : p ))= p
     if obj.next
-      li.pagination-next: a(href='?page=' + obj.next) Next
+      li.pagination-next: span: a(href='?page=' + obj.next) Next
     else
-      li.pagination-previous.disabled: a(href='?page=' + obj.totalPages) Next
+      li.pagination-next.disabled: span: a(href='?page=' + obj.totalPages) Next
