@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/lighthousecatholicmedia/keystone-blog#readme",
   "dependencies": {
+    "babel-core": "^6.3.17",
+    "babel-register": "^6.3.13",
     "bluebird": "^3.0.6",
     "jade": "^1.11.0",
     "lodash": "^3.10.1",
@@ -24,5 +26,12 @@
   },
   "peerDependencies": {
     "keystone": ">=0.3.15"
+  },
+  "devDependencies": {
+    "babel-core": "^6.3.17",
+    "babel-preset-es2015": "^6.3.13",
+    "grunt": "^0.4.5",
+    "grunt-babel": "^6.0.0",
+    "load-grunt-tasks": "^3.3.0"
   }
 }

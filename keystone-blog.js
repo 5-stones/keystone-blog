@@ -1,5 +1,5 @@
-var KeystoneHelper = require('./lib/Keystone/KeystoneHelper');
-var PostController = require('./lib/PostController');
+var KeystoneHelper = require('./dist/Keystone/KeystoneHelper');
+var PostController = require('./dist/PostController');
 
 module.exports = {
   import: function(keystone, routes){
