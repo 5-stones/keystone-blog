@@ -15,7 +15,7 @@ BlogPost.add({
 	slug: { type: String, readonly: true },
   tags: { type: Types.Relationship, ref: 'Tag', many: true, initial: true },
 
-  image: { type: Types.S3File,
+  featuredImage: { type: Types.S3File,
     s3path: '/images/blog',
     allowedTypes: ['image/png'],
     filename: function(post, filename) { return post.slug+'.jpg'; }
@@ -27,4 +27,5 @@ BlogPost.add({
   views: {type: Number, default: 0}
 });
 
+BlogPost.defaultSort = '-createdAt';
 BlogPost.register();

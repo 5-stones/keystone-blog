@@ -1,6 +1,10 @@
 .index
   each post in obj.results
     .post
+      if post.featuredImage != "{}"
+        .row.post-featured-image
+          a(href="/blog/"+post.slug)
+            img(src=post.featuredImage.url).img-responsive
       .row.post-name
         a(href="/blog/"+post.slug)
           h2= post.name
@@ -11,7 +15,7 @@
           each tag in post.tags
             if needsComma
               | , 
-            a(href="/blog?tags="+tag.slug)= tag.name
+            a(href="/blog?tag="+tag.slug)= tag.name
             - needsComma = true
         span
           a(href="#comments") Comments

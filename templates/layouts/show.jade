@@ -8,7 +8,7 @@
       each tag in obj.tags
         if needsComma
           | , 
-        a(href="/blog?tags="+tag.slug)= tag.name
+        a(href="/blog?tag="+tag.slug)= tag.name
         - needsComma = true
     span
       a(href="#comments") Comments

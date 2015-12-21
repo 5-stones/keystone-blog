@@ -63,7 +63,7 @@ var PostController = (function (_Binder) {
 
   /**
    * A request is made. This is called as a middleware function in the parent application's routes.
-   * If a post slug is attached to the request parameters, the show function will be called next,
+   * If a post slug is attached to the request parameters and is not "popular", the show function will be called next,
    * otherwise the index function will.
    * @param  {HttpRequest}   req
    * @param  {HttpResponse}  res
@@ -73,7 +73,7 @@ var PostController = (function (_Binder) {
   _createClass(PostController, [{
     key: 'request',
     value: function request(req, res, next) {
-      if (req.params.post) {
+      if (req.params.post && req.params.post != "popular") {
         this._show(req, res, next);
       } else {
         this._index(req, res, next);
@@ -91,6 +91,7 @@ var PostController = (function (_Binder) {
   }, {
     key: 'popularPosts',
     value: function popularPosts(req, res, limit) {
+      console.log("popular posts function call");
       var render = this.render;
       var session = req.session;
       var query = _KeystoneHelper2.default.getKeystone().list('BlogPost').model.find().populate('tags').sort('-views');
@@ -100,12 +101,26 @@ var PostController = (function (_Binder) {
       return query.exec(function (err, result) {});
     }
   }, {
-    key: 'popularIndex',
-    value: function popularIndex(req, res, next) {}
+    key: '_popular',
+    value: function _popular(req, res, next) {
+      var _this2 = this;
+
+      var page = req.query.page || 1;
+      var perPage = this.perPage;
+      var maxPages = this.maxPages;
+
+      this.popularPosts(req, res).then(function (result) {
+        console.log("popular posts for entire page fetched");
+        req.renderedTemplate = _this2._renderIndex(result);
+        // Allow the next in the chain
+        next();
+      });
+    }
 
     /**
      * Get the index of posts. If render is true, a rendered jade template will be returned.
      * Else, a list of Posts will be.
+     * Also, if the post slug has a value equivalent to "popular", the index will be sorted on popularity
      * @param  {HttpRequest}   req
      * @param  {HttpResponse}  res
      * @param  {Function}      next
@@ -115,7 +130,7 @@ var PostController = (function (_Binder) {
   }, {
     key: '_index',
     value: function _index(req, res, next) {
-      var _this2 = this;
+      var _this3 = this;
 
       var render = this.render;
       var page = req.query.page || 1;
@@ -136,12 +151,26 @@ var PostController = (function (_Binder) {
         var execAsync;
         // If we are not filtering on tag
         if (result === false) {
-          execAsync = _bluebird2.default.promisify(_KeystoneHelper2.default.getKeystone().list('BlogPost').paginate({
-            page: page,
-            perPage: perPage,
-            maxPages: maxPages
-          }).sort('-createdAt').populate('tags').exec);
+          console.log("NOT filtering on tag");
+          // If we are sorting on popularity
+          if (req.params.post == "popular") {
+            console.log("sorting by popularity");
+            execAsync = _bluebird2.default.promisify(_KeystoneHelper2.default.getKeystone().list('BlogPost').paginate({
+              page: page,
+              perPage: perPage,
+              maxPages: maxPages
+            }).populate('tags').sort('-views').exec);
+          } else {
+            // If we are not sorting on popularity
+            console.log("NOT sorting by popularity");
+            execAsync = _bluebird2.default.promisify(_KeystoneHelper2.default.getKeystone().list('BlogPost').paginate({
+              page: page,
+              perPage: perPage,
+              maxPages: maxPages
+            }).sort('-createdAt').populate('tags').exec);
+          }
         } else {
+          console.log("filtering on tag");
           // If we are filtering on tag
           execAsync = _bluebird2.default.promisify(_KeystoneHelper2.default.getKeystone().list('BlogPost').paginate({
             page: page,
@@ -153,8 +182,10 @@ var PostController = (function (_Binder) {
         result().then(function (posts) {
           // Render a jade template and return it
           if (render) {
-            req.renderedTemplate = _this2._renderIndex(posts);
+            console.log("rendering jade template from module");
+            req.renderedTemplate = _this3._renderIndex(posts);
           } else {
+            console.log("NOT rendering jade template from module");
             // Return the result set of posts
             req.posts = posts;
           }
@@ -176,7 +207,7 @@ var PostController = (function (_Binder) {
   }, {
     key: '_show',
     value: function _show(req, res, next) {
-      var _this3 = this;
+      var _this4 = this;
 
       var render = this.render;
       var session = req.session;
@@ -193,7 +224,7 @@ var PostController = (function (_Binder) {
         }
 
         if (render) {
-          req.renderedTemplate = _this3._renderShow(post);
+          req.renderedTemplate = _this4._renderShow(post);
         } else {
           req.post = post;
         }
