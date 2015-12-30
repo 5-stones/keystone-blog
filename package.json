@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "A Node.js module for quickly and easily loading a blog into an existing Keystone.js implementation.",
   "main": "keystone-blog.js",
+  "keywords": [
+    "keystone",
+    "blog",
+    "blogging"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
