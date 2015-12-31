@@ -57,7 +57,7 @@ var PostController = (function (_Binder) {
     _this.perPage = perPage || 10;
     _this.maxPages = maxPages || 5;
     _this.dateFormat = dateFormat || "llll";
-    _this._bind(['request', '_index', '_show', '_renderIndex', '_renderShow']);
+    _this._bind(['request', '_index', '_show', '_renderIndex', '_renderShow', '_buildQuery']);
     return _this;
   }
 
@@ -73,7 +73,7 @@ var PostController = (function (_Binder) {
   _createClass(PostController, [{
     key: 'request',
     value: function request(req, res, next) {
-      if (req.params.post && req.params.post != "popular") {
+      if (req.params.post) {
         this._show(req, res, next);
       } else {
         this._index(req, res, next);
@@ -94,7 +94,7 @@ var PostController = (function (_Binder) {
       console.log("popular posts function call");
       var render = this.render;
       var session = req.session;
-      var query = _KeystoneHelper2.default.getKeystone().list('BlogPost').model.find().populate('tags').sort('-views');
+      var query = _KeystoneHelper2.default.getKeystone().list('BlogPost').model.find().populate('tags').populate('author').sort('-views');
       if (typeof limit !== 'undefined') {
         query.limit(limit);
       }
@@ -148,36 +148,18 @@ var PostController = (function (_Binder) {
         });
       }
       promise.then(function (result) {
-        var execAsync;
+        var query;
         // If we are not filtering on tag
         if (result === false) {
           console.log("NOT filtering on tag");
           // If we are sorting on popularity
-          if (req.params.post == "popular") {
-            console.log("sorting by popularity");
-            execAsync = _bluebird2.default.promisify(_KeystoneHelper2.default.getKeystone().list('BlogPost').paginate({
-              page: page,
-              perPage: perPage,
-              maxPages: maxPages
-            }).populate('tags').sort('-views').exec);
-          } else {
-            // If we are not sorting on popularity
-            console.log("NOT sorting by popularity");
-            execAsync = _bluebird2.default.promisify(_KeystoneHelper2.default.getKeystone().list('BlogPost').paginate({
-              page: page,
-              perPage: perPage,
-              maxPages: maxPages
-            }).sort('-createdAt').populate('tags').exec);
-          }
+          query = _this3._buildQuery(page, req.query.sortBy);
         } else {
           console.log("filtering on tag");
           // If we are filtering on tag
-          execAsync = _bluebird2.default.promisify(_KeystoneHelper2.default.getKeystone().list('BlogPost').paginate({
-            page: page,
-            perPage: perPage
-          }).sort('-createdAt').populate('tags').where('tags').in([result]).exec);
+          query = _this3._buildQuery(page, req.query.sortBy, result);
         }
-        return execAsync;
+        return _bluebird2.default.promisify(query.exec);
       }).then(function (result) {
         result().then(function (posts) {
           // Render a jade template and return it
@@ -214,7 +196,7 @@ var PostController = (function (_Binder) {
       if (typeof session.postViews == 'undefined') {
         session.postViews = [];
       }
-      _bluebird2.default.resolve(_KeystoneHelper2.default.getKeystone().list('BlogPost').model.findOne({ 'slug': req.params.post }).populate('tags').exec()).then(function (post) {
+      _bluebird2.default.resolve(_KeystoneHelper2.default.getKeystone().list('BlogPost').model.findOne({ 'slug': req.params.post }).populate('tags').populate('author').exec()).then(function (post) {
         // Track pageviews of this blog post if the session has not already done so
         if (session.postViews.indexOf(post.slug) == -1) {
           _KeystoneHelper2.default.getKeystone().list('BlogPost').model.update({ slug: post.slug }, {
@@ -258,6 +240,32 @@ var PostController = (function (_Binder) {
       var dateFormat = this.dateFormat;
       var renderer = new _Renderer2.default();
       return renderer.render(post, '/../templates/layouts/show.jade', dateFormat);
+    }
+  }, {
+    key: '_buildQuery',
+    value: function _buildQuery(page, sortBy, filterBy) {
+      var query = _KeystoneHelper2.default.getKeystone().list('BlogPost').paginate({
+        page: page,
+        perPage: perPage,
+        maxPages: maxPages
+      }).populate('tags').populate('author');
+
+      var perPage = this.perPage;
+      var maxPages = this.maxPages;
+
+      if (sortBy == null) {
+        query = query.sort('-createdAt');
+      } else if (sortBy == 'popularity') {
+        query = query.sort('-views');
+      } else {
+        query = query.sort(sortBy);
+      }
+
+      if (filterBy != null) {
+        query = query.where('tags').in([result]);
+      }
+
+      return query;
     }
   }]);
 

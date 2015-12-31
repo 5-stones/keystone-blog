@@ -12,6 +12,10 @@
         - needsComma = true
     span
       a(href="#comments") Comments
+  .row.post-author
+    if obj.author.image != undefined && obj.author.image != "{}"
+      img(src=obj.author.image.url)
+    | By #{obj.author.name.first} #{obj.author.name.last}
   .row.blog-body
     != obj.body.html
 #comments

@@ -1,7 +1,7 @@
 .index
   each post in obj.results
     .post
-      if post.featuredImage != "{}"
+      if post.featuredImage != undefined && post.featuredImage != "{}"
         .row.post-featured-image
           a(href="/blog/"+post.slug)
             img(src=post.featuredImage.url).img-responsive
@@ -19,6 +19,10 @@
             - needsComma = true
         span
           a(href="#comments") Comments
+      .row.post-author
+        if post.author.image != undefined && post.author.image != "{}"
+          img(src=post.author.image.url)
+        | By #{post.author.name.first} #{post.author.name.last}
       .row.post-preview
         p= post.preview
       .row.read-more

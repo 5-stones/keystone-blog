@@ -10,8 +10,11 @@ var BlogPost = new keystone.List('BlogPost', {
   defaultColumns: 'name, tags'
 });
 
+var userModel = keystone.get("user model");
+
 BlogPost.add({
 	name: { type: String, required: true },
+  author: { type: Types.Relationship, ref: userModel, required: true, initial: true },
 	slug: { type: String, readonly: true },
   tags: { type: Types.Relationship, ref: 'Tag', many: true, initial: true },
 
