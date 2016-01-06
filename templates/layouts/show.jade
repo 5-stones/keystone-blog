@@ -1,7 +1,7 @@
 .container.show
-  .row.post-name
+  //- .row.post-name
     h2= obj.name
-  .row.post-details
+  //- .row.post-details
     span= moment(obj.createdAt).format(dateFormat)
     span.tags
       - var needsComma = false
@@ -12,10 +12,15 @@
         - needsComma = true
     span
       a(href="#comments") Comments
-  .row.post-author
-    if obj.author.image != undefined && obj.author.image != "{}"
-      img(src=obj.author.image.url)
+  .post-author(style="height:900px;")
+    if obj.author.image != "{}"
+      | POST AUTHOR: 
+      != obj.author
+      br
+      | POST AUTHOR IMAGE: 
+      != typeof obj.author.image
+      br
     | By #{obj.author.name.first} #{obj.author.name.last}
-  .row.blog-body
+  //- .row.blog-body
     != obj.body.html
 #comments

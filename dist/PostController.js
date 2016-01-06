@@ -206,6 +206,8 @@ var PostController = (function (_Binder) {
         }
 
         if (render) {
+          console.log(JSON.stringify(post.author.name.last));
+          console.log(JSON.stringify(post.author.image));
           req.renderedTemplate = _this4._renderShow(post);
         } else {
           req.post = post;

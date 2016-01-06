@@ -18,6 +18,7 @@ module.exports = {
         filename: function(user, filename) { return user.slug+'.png'; }
       }});
     }
+    User.register();
   },
   PostController: PostController
 };
