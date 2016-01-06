@@ -11,7 +11,7 @@
         a(href="/blog?tag="+tag.slug)= tag.name
         - needsComma = true
     span
-      a(href="#comments") Comments
+      a(href="#disqus_thread") Comments
   .row.blog-body
     != obj.body.html
-#comments
+#disqus_thread
