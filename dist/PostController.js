@@ -51,9 +51,11 @@ var PostController = (function (_Binder) {
   function PostController(render, perPage, maxPages, dateFormat) {
     _classCallCheck(this, PostController);
 
+    // TODO Figure out why this always gets overridden to true when it's a boolean. Using a string is just plain offensive.
+
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(PostController).call(this));
 
-    _this.render = render || true;
+    _this.render = render || "true";
     _this.perPage = perPage || 10;
     _this.maxPages = maxPages || 5;
     _this.dateFormat = dateFormat || "llll";
@@ -159,7 +161,7 @@ var PostController = (function (_Binder) {
       }).then(function (result) {
         result().then(function (posts) {
           // Render a jade template and return it
-          if (render) {
+          if (render == "true") {
             req.renderedTemplate = _this3._renderIndex(posts);
           } else {
             // Return the result set of posts
@@ -199,7 +201,7 @@ var PostController = (function (_Binder) {
           session.postViews.push(post.slug);
         }
 
-        if (render) {
+        if (render == "true") {
           req.renderedTemplate = _this4._renderShow(post);
         } else {
           req.post = post;
