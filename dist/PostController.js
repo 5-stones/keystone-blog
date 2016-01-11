@@ -57,7 +57,7 @@ var PostController = (function (_Binder) {
     _this.perPage = perPage || 10;
     _this.maxPages = maxPages || 5;
     _this.dateFormat = dateFormat || "llll";
-    _this._bind(['request', '_index', '_show', '_renderIndex', '_renderShow', '_buildQuery']);
+    _this._bind(['request', '_index', '_show', '_renderIndex', '_renderShow', '_buildIndexQuery']);
     return _this;
   }
 
@@ -91,7 +91,6 @@ var PostController = (function (_Binder) {
   }, {
     key: 'popularPosts',
     value: function popularPosts(req, res, limit) {
-      console.log("popular posts function call");
       var render = this.render;
       var session = req.session;
       var query = _KeystoneHelper2.default.getKeystone().list('BlogPost').model.find().populate('tags').populate('author').sort('-views');
@@ -110,7 +109,6 @@ var PostController = (function (_Binder) {
       var maxPages = this.maxPages;
 
       this.popularPosts(req, res).then(function (result) {
-        console.log("popular posts for entire page fetched");
         req.renderedTemplate = _this2._renderIndex(result);
         // Allow the next in the chain
         next();
@@ -151,23 +149,19 @@ var PostController = (function (_Binder) {
         var query;
         // If we are not filtering on tag
         if (result === false) {
-          console.log("NOT filtering on tag");
           // If we are sorting on popularity
-          query = _this3._buildQuery(page, req.query.sortBy);
+          query = _this3._buildIndexQuery(page, req.query.sortBy);
         } else {
-          console.log("filtering on tag");
           // If we are filtering on tag
-          query = _this3._buildQuery(page, req.query.sortBy, result);
+          query = _this3._buildIndexQuery(page, req.query.sortBy, result);
         }
         return _bluebird2.default.promisify(query.exec);
       }).then(function (result) {
         result().then(function (posts) {
           // Render a jade template and return it
           if (render) {
-            console.log("rendering jade template from module");
             req.renderedTemplate = _this3._renderIndex(posts);
           } else {
-            console.log("NOT rendering jade template from module");
             // Return the result set of posts
             req.posts = posts;
           }
@@ -206,8 +200,6 @@ var PostController = (function (_Binder) {
         }
 
         if (render) {
-          console.log(JSON.stringify(post.author.name.last));
-          console.log(JSON.stringify(post.author.image));
           req.renderedTemplate = _this4._renderShow(post);
         } else {
           req.post = post;
@@ -244,8 +236,8 @@ var PostController = (function (_Binder) {
       return renderer.render(post, '/../templates/layouts/show.jade', dateFormat);
     }
   }, {
-    key: '_buildQuery',
-    value: function _buildQuery(page, sortBy, filterBy) {
+    key: '_buildIndexQuery',
+    value: function _buildIndexQuery(page, sortBy, filterBy) {
       var query = _KeystoneHelper2.default.getKeystone().list('BlogPost').paginate({
         page: page,
         perPage: perPage,
