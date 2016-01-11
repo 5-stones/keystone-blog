@@ -18,7 +18,7 @@
             a(href="/blog?tag="+tag.slug)= tag.name
             - needsComma = true
         span
-          a(href="#comments") Comments
+          a(href="/blog/"+post.slug+"#disqus_thread") Comments
       .row.post-author
         if post.author.image != "{}"
           | POST AUTHOR IMAGE: 
