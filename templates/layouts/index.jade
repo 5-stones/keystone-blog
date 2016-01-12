@@ -20,10 +20,9 @@
         span
           a(href="/blog/"+post.slug+"#disqus_thread") Comments
       .row.post-author
-        if post.author.image != "{}"
-          | POST AUTHOR IMAGE: 
-          != JSON.stringify(obj.author.image)
-        | By #{post.author.name.first} #{post.author.name.last}
+        if post.author._doc.image != "{}"
+          img(src=post.author._doc.image.url)
+        | By #{post.author._doc.name.first} #{post.author._doc.name.last}
       .row.post-preview
         p= post.preview
       .row.read-more

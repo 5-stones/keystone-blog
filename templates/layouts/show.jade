@@ -12,15 +12,10 @@
         - needsComma = true
     span
       a(href="#disqus_thread") Comments
-  .post-author(style="height:900px;")
-    if obj.author.image != "{}"
-      | POST AUTHOR: 
-      != obj.author
-      br
-      | POST AUTHOR IMAGE: 
-      != obj
-      br
-    | By #{obj.author.name.first} #{obj.author.name.last}
+  .post-author
+    if obj.author._doc.image != "{}"
+      img(src=obj.author._doc.image.url)
+    | By #{obj.author._doc.name.first} #{obj.author._doc.name.last}
   .row.blog-body
     != obj.body.html
 #disqus_thread
