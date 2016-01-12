@@ -3,10 +3,10 @@
     .post
       if post.featuredImage != "{}"
         .row.post-featured-image
-          a(href="/blog/"+post.slug)
+          a(href="/blog/post/"+post.slug)
             img(src=post.featuredImage.url).img-responsive
       .row.post-name
-        a(href="/blog/"+post.slug)
+        a(href="/blog/post/"+post.slug)
           h2= post.name
       .row.post-details
         span= moment(post.createdAt).format(dateFormat)
@@ -15,10 +15,10 @@
           each tag in post.tags
             if needsComma
               | , 
-            a(href="/blog?tag="+tag.slug)= tag.name
+            a(href="/blog/"+tag.slug)= tag.name
             - needsComma = true
         span
-          a(href="/blog/"+post.slug+"#disqus_thread") Comments
+          a(href="/blog/post/"+post.slug+"#disqus_thread") Comments
       .row.post-author
         if post.author._doc.image != "{}"
           img(src=post.author._doc.image.url)
@@ -26,7 +26,7 @@
       .row.post-preview
         p= post.preview
       .row.read-more
-        a(href="/blog/"+post.slug).btn Read more
+        a(href="/blog/post/"+post.slug).btn Read more
   if obj.totalPages > 1
     ul.pagination
       if obj.previous

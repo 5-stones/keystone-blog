@@ -8,11 +8,11 @@
       each tag in obj.tags
         if needsComma
           | , 
-        a(href="/blog?tag="+tag.slug)= tag.name
+        a(href="/blog/"+tag.slug)= tag.name
         - needsComma = true
     span
       a(href="#disqus_thread") Comments
-  .post-author
+  .row.post-author
     if obj.author._doc.image != "{}"
       img(src=obj.author._doc.image.url)
     | By #{obj.author._doc.name.first} #{obj.author._doc.name.last}

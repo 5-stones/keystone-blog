@@ -59,27 +59,101 @@ var PostController = (function (_Binder) {
     _this.perPage = perPage || 10;
     _this.maxPages = maxPages || 5;
     _this.dateFormat = dateFormat || "llll";
-    _this._bind(['request', '_index', '_show', '_renderIndex', '_renderShow', '_buildIndexQuery']);
+    _this._bind(['index', 'show', '_renderIndex', '_renderShow', '_buildIndexQuery']);
     return _this;
   }
 
   /**
-   * A request is made. This is called as a middleware function in the parent application's routes.
-   * If a post slug is attached to the request parameters and is not "popular", the show function will be called next,
-   * otherwise the index function will.
+   * Get the index of posts. If render is true, a rendered jade template will be returned.
+   * Else, a list of Posts will be.
+   * Also, if the post slug has a value equivalent to "popular", the index will be sorted on popularity
    * @param  {HttpRequest}   req
    * @param  {HttpResponse}  res
    * @param  {Function}      next
+   * @return {JadeTemplate or List[Post]} The configured return format for an index of posts
    */
 
   _createClass(PostController, [{
-    key: 'request',
-    value: function request(req, res, next) {
-      if (req.params.post) {
-        this._show(req, res, next);
-      } else {
-        this._index(req, res, next);
+    key: 'index',
+    value: function index(req, res, next) {
+      var _this2 = this;
+
+      var render = this.render;
+      var page = req.query.page || 1;
+      var perPage = this.perPage;
+      var maxPages = this.maxPages;
+
+      // If we are not filtering on tag
+      var promise = _bluebird2.default.resolve(false);
+      // If we are filtering on tag
+      if (req.params.tag) {
+        var tag;
+        var tagFilter = req.params.tag;
+        promise = _KeystoneHelper2.default.getKeystone().list('Tag').model.findOne({ 'slug': tagFilter }).exec(function (err, result) {
+          tag = result;
+        });
       }
+      promise.then(function (result) {
+        var query;
+        // If we are not filtering on tag
+        if (result === false) {
+          // If we are sorting on popularity
+          query = _this2._buildIndexQuery(page, req.query.sortBy);
+        } else {
+          // If we are filtering on tag
+          query = _this2._buildIndexQuery(page, req.query.sortBy, result);
+        }
+        return _bluebird2.default.promisify(query.exec);
+      }).then(function (result) {
+        result().then(function (posts) {
+          // Render a jade template and return it
+          if (render == "true") {
+            req.renderedTemplate = _this2._renderIndex(posts);
+          } else {
+            // Return the result set of posts
+            req.posts = posts;
+          }
+          // Allow the next in the chain
+          next();
+        });
+      });
+    }
+
+    /**
+     * Get a posts. If render is true, a rendered jade template will be returned.
+     * Else, a Post instance will be.
+     * @param  {HttpRequest}   req
+     * @param  {HttpResponse}  res
+     * @param  {Function}      next
+     * @return {JadeTemplate or Post} The configured return format for a post
+     */
+
+  }, {
+    key: 'show',
+    value: function show(req, res, next) {
+      var _this3 = this;
+
+      var render = this.render;
+      var session = req.session;
+      if (typeof session.postViews == 'undefined') {
+        session.postViews = [];
+      }
+      _bluebird2.default.resolve(_KeystoneHelper2.default.getKeystone().list('BlogPost').model.findOne({ 'slug': req.params.post }).populate('tags').populate('author').exec()).then(function (post) {
+        // Track pageviews of this blog post if the session has not already done so
+        if (session.postViews.indexOf(post.slug) == -1) {
+          _KeystoneHelper2.default.getKeystone().list('BlogPost').model.update({ slug: post.slug }, {
+            views: post.views + 1
+          }, function (err, affected, resp) {});
+          session.postViews.push(post.slug);
+        }
+
+        if (render == "true") {
+          req.renderedTemplate = _this3._renderShow(post);
+        } else {
+          req.post = post;
+        }
+        next();
+      });
     }
 
     // TODO Sort similarly to reddit's hot sort algorithm so createdAt date is factored into the sorting
@@ -104,108 +178,15 @@ var PostController = (function (_Binder) {
   }, {
     key: '_popular',
     value: function _popular(req, res, next) {
-      var _this2 = this;
+      var _this4 = this;
 
       var page = req.query.page || 1;
       var perPage = this.perPage;
       var maxPages = this.maxPages;
 
       this.popularPosts(req, res).then(function (result) {
-        req.renderedTemplate = _this2._renderIndex(result);
+        req.renderedTemplate = _this4._renderIndex(result);
         // Allow the next in the chain
-        next();
-      });
-    }
-
-    /**
-     * Get the index of posts. If render is true, a rendered jade template will be returned.
-     * Else, a list of Posts will be.
-     * Also, if the post slug has a value equivalent to "popular", the index will be sorted on popularity
-     * @param  {HttpRequest}   req
-     * @param  {HttpResponse}  res
-     * @param  {Function}      next
-     * @return {JadeTemplate or List[Post]} The configured return format for an index of posts
-     */
-
-  }, {
-    key: '_index',
-    value: function _index(req, res, next) {
-      var _this3 = this;
-
-      var render = this.render;
-      var page = req.query.page || 1;
-      var perPage = this.perPage;
-      var maxPages = this.maxPages;
-
-      // If we are not filtering on tag
-      var promise = _bluebird2.default.resolve(false);
-      // If we are filtering on tag
-      if (req.query.tag) {
-        var tag;
-        var tagFilter = req.query.tag;
-        promise = _KeystoneHelper2.default.getKeystone().list('Tag').model.findOne({ 'slug': tagFilter }).exec(function (err, result) {
-          tag = result;
-        });
-      }
-      promise.then(function (result) {
-        var query;
-        // If we are not filtering on tag
-        if (result === false) {
-          // If we are sorting on popularity
-          query = _this3._buildIndexQuery(page, req.query.sortBy);
-        } else {
-          // If we are filtering on tag
-          query = _this3._buildIndexQuery(page, req.query.sortBy, result);
-        }
-        return _bluebird2.default.promisify(query.exec);
-      }).then(function (result) {
-        result().then(function (posts) {
-          // Render a jade template and return it
-          if (render == "true") {
-            req.renderedTemplate = _this3._renderIndex(posts);
-          } else {
-            // Return the result set of posts
-            req.posts = posts;
-          }
-          // Allow the next in the chain
-          next();
-        });
-      });
-    }
-
-    /**
-     * Get a posts. If render is true, a rendered jade template will be returned.
-     * Else, a Post instance will be.
-     * @param  {HttpRequest}   req
-     * @param  {HttpResponse}  res
-     * @param  {Function}      next
-     * @return {JadeTemplate or Post} The configured return format for a post
-     */
-
-  }, {
-    key: '_show',
-    value: function _show(req, res, next) {
-      var _this4 = this;
-
-      var render = this.render;
-      var session = req.session;
-      if (typeof session.postViews == 'undefined') {
-        session.postViews = [];
-      }
-      _bluebird2.default.resolve(_KeystoneHelper2.default.getKeystone().list('BlogPost').model.findOne({ 'slug': req.params.post }).populate('tags').populate('author').exec()).then(function (post) {
-        // Track pageviews of this blog post if the session has not already done so
-        if (session.postViews.indexOf(post.slug) == -1) {
-          _KeystoneHelper2.default.getKeystone().list('BlogPost').model.update({ slug: post.slug }, {
-            views: post.views + 1
-          }, function (err, affected, resp) {});
-          session.postViews.push(post.slug);
-        }
-
-        if (render == "true") {
-          req.renderedTemplate = _this4._renderShow(post);
-        } else {
-          req.post = post;
-        }
         next();
       });
     }
@@ -239,7 +220,8 @@ var PostController = (function (_Binder) {
     }
   }, {
     key: '_buildIndexQuery',
-    value: function _buildIndexQuery(page, sortBy, filterBy) {
+    value: function _buildIndexQuery(page, sortBy, tagObject) {
+      console.log("query being built");
       var query = _KeystoneHelper2.default.getKeystone().list('BlogPost').paginate({
         page: page,
         perPage: perPage,
@@ -257,8 +239,9 @@ var PostController = (function (_Binder) {
         query = query.sort(sortBy);
       }
 
-      if (filterBy != null) {
-        query = query.where('tags').in([result]);
+      if (tagObject != null) {
+        query = query.where('tags').in([tagObject]);
+        console.log("query: " + query);
       }
 
       return query;
