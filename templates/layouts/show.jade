@@ -13,9 +13,10 @@
     span
       a(href="#disqus_thread") Comments
   .row.post-author
-    if obj.author._doc.image != "{}"
-      img(src=obj.author._doc.image.url)
-    | By #{obj.author._doc.name.first} #{obj.author._doc.name.last}
+    a(href="/blog/author/"+obj.author.slug)
+      if obj.author._doc.image != "{}"
+        img(src=obj.author._doc.image.url)
+      | By #{obj.author._doc.name.first} #{obj.author._doc.name.last}
   .row.blog-body
     != obj.body.html
 #disqus_thread

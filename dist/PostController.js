@@ -43,15 +43,19 @@ var PostController = (function (_Binder) {
    *                          If true, a rendered template is returned.
    *                          If false, index methods will return a list of Post instances and
    *                          show methods will return Post instances.
-   * @param  {Integer} perPage The number of blog posts to show on a single index page. Defaults to 10.
-   * @param  {Integer} maxPages The number of pages to show in the pagination navigation. Defaults to 5.
-   * @param  {String} dateFormat The format to show the blog date. Defaults to "llll". See http://momentjs.com/#format-dates
+   * @param  {Integer} perPage The number of blog posts to show on a single index page.
+   *                          Defaults to 10.
+   * @param  {Integer} maxPages The number of pages to show in the pagination navigation.
+   *                          Defaults to 5.
+   * @param  {String} dateFormat The format to show the blog date. Defaults to "llll". See
+   *                          http://momentjs.com/#format-dates
    */
 
   function PostController(render, perPage, maxPages, dateFormat) {
     _classCallCheck(this, PostController);
 
-    // TODO Figure out why this always gets overridden to true when it's a boolean. Using a string is just plain offensive.
+    // TODO Figure out why this always gets overridden to true when it's a boolean. Using a
+    // string is just plain offensive.
 
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(PostController).call(this));
 
@@ -59,14 +63,15 @@ var PostController = (function (_Binder) {
     _this.perPage = perPage || 10;
     _this.maxPages = maxPages || 5;
     _this.dateFormat = dateFormat || "llll";
-    _this._bind(['index', 'show', '_renderIndex', '_renderShow', '_buildIndexQuery']);
+    _this._bind(['index', 'show', 'author', '_renderIndex', '_renderShow', '_renderAuthor', '_buildIndexQuery']);
     return _this;
   }
 
   /**
    * Get the index of posts. If render is true, a rendered jade template will be returned.
    * Else, a list of Posts will be.
-   * Also, if the post slug has a value equivalent to "popular", the index will be sorted on popularity
+   * Also, if the post slug has a value equivalent to "popular", the index will be sorted on
+   * popularity
    * @param  {HttpRequest}   req
    * @param  {HttpResponse}  res
    * @param  {Function}      next
@@ -82,13 +87,18 @@ var PostController = (function (_Binder) {
       var page = req.query.page || 1;
       var perPage = this.perPage;
       var maxPages = this.maxPages;
+      // This is so users of this module can set up default tags
+      if (req.params.tag) {
+        req.tag = req.params.tag;
+      }
 
       // If we are not filtering on tag
       var promise = _bluebird2.default.resolve(false);
       // If we are filtering on tag
-      if (req.params.tag) {
+      if (req.tag) {
         var tag;
-        var tagFilter = req.params.tag;
+        var tagFilter = req.tag;
+        console.log("tag: " + tagFilter);
         promise = _KeystoneHelper2.default.getKeystone().list('Tag').model.findOne({ 'slug': tagFilter }).exec(function (err, result) {
           tag = result;
         });
@@ -120,7 +130,7 @@ var PostController = (function (_Binder) {
     }
 
     /**
-     * Get a posts. If render is true, a rendered jade template will be returned.
+     * Get all posts. If render is true, a rendered jade template will be returned.
      * Else, a Post instance will be.
      * @param  {HttpRequest}   req
      * @param  {HttpResponse}  res
@@ -156,7 +166,8 @@ var PostController = (function (_Binder) {
       });
     }
 
-    // TODO Sort similarly to reddit's hot sort algorithm so createdAt date is factored into the sorting
+    // TODO Sort similarly to reddit's hot sort algorithm so createdAt date is factored into the
+    // sorting
     /**
      * Get a list of most popular posts
      * @param  {HttpRequest}  req  [description]
@@ -167,8 +178,6 @@ var PostController = (function (_Binder) {
   }, {
     key: 'popularPosts',
     value: function popularPosts(req, res, limit) {
-      var render = this.render;
-      var session = req.session;
       var query = _KeystoneHelper2.default.getKeystone().list('BlogPost').model.find().populate('tags').populate('author').sort('-views');
       if (typeof limit !== 'undefined') {
         query.limit(limit);
@@ -176,16 +185,32 @@ var PostController = (function (_Binder) {
       return query.exec(function (err, result) {});
     }
   }, {
+    key: 'author',
+    value: function author(req, res, next) {
+      var _this4 = this;
+
+      var render = this.render;
+      var userModel = keystone.get("user model");
+      _bluebird2.default.resolve(_KeystoneHelper2.default.getKeystone().list(userModel).model.findOne({ 'slug': req.params.author }).exec()).then(function (author) {
+        if (render == "true") {
+          req.renderedTemplate = _this4._renderAuthor(author);
+        } else {
+          req.author = author;
+        }
+        next();
+      });
+    }
+  }, {
     key: '_popular',
     value: function _popular(req, res, next) {
-      var _this4 = this;
+      var _this5 = this;
 
       var page = req.query.page || 1;
       var perPage = this.perPage;
       var maxPages = this.maxPages;
 
       this.popularPosts(req, res).then(function (result) {
-        req.renderedTemplate = _this4._renderIndex(result);
+        req.renderedTemplate = _this5._renderIndex(result);
         // Allow the next in the chain
         next();
       });
@@ -217,6 +242,13 @@ var PostController = (function (_Binder) {
       var dateFormat = this.dateFormat;
       var renderer = new _Renderer2.default();
       return renderer.render(post, '/../templates/layouts/show.jade', dateFormat);
+    }
+  }, {
+    key: '_renderAuthor',
+    value: function _renderAuthor(author) {
+      var dateFormat = this.dateFormat;
+      var renderer = new _Renderer2.default();
+      return renderer.render(author, '/../templates/layouts/author.jade', dateFormat);
     }
   }, {
     key: '_buildIndexQuery',

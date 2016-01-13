@@ -14,4 +14,22 @@ if (!User.fields["image"]) {
     filename: function(user, filename) { return user.slug+'.png'; }
   }});
 }
+if (!User.fields["bio"]) {
+  User.add({ bio: { type: Types.Markdown }});
+}
+if (!User.fields["websiteName"]) {
+  User.add({ websiteName: { type: String }});
+}
+if (!User.fields["websiteUrl"]) {
+  User.add({ websiteUrl: { type: Types.Url }});
+}
+if (!User.fields["facebook"]) {
+  User.add({ facebook: { type: Types.Url }});
+}
+if (!User.fields["twitter"]) {
+  User.add({ twitter: { type: Types.Url }});
+}
+if (!User.fields["googlePlus"]) {
+  User.add({ googlePlus: { type: Types.Url }});
+}
 // User.register();
