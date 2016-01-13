@@ -1,0 +1,16 @@
+.container.author
+  .row.author-name
+    if obj._doc.image != "{}"
+      img(src=obj._doc.image.url)
+    | #{obj._doc.name.first} #{obj._doc.name.last}
+  .row.author-bio
+    != obj._doc.bio.html
+  .row.author-find
+    if websiteUrl && websiteName
+      a(href=websiteUrl)= websiteName
+    if facebook
+      a(href=facebook) Facebook
+    if twitter
+      a(href=twitter) Twitter
+    if googlePlus
+      a(href=googlePlus) Google+
