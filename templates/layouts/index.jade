@@ -1,4 +1,4 @@
-.index
+.container.blog-index
   each post in obj.results
     .post
       if post.featuredImage != "{}"
@@ -19,8 +19,8 @@
             - needsComma = true
         span
           a(href="/blog/post/"+post.slug+"#disqus_thread") Comments
-      .row.post-author
-        a(href="/blog/author/"+obj.author.slug)
+      .row.author-small-image
+        a(href="/blog/author/"+post.author.slug)
           if post.author._doc.image != "{}"
             img(src=post.author._doc.image.url)
           | By #{post.author._doc.name.first} #{post.author._doc.name.last}

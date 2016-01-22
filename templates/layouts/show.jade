@@ -1,4 +1,4 @@
-.container.show
+.container.blog-show.post
   .row.post-name
     h2= obj.name
   .row.post-details
@@ -12,7 +12,7 @@
         - needsComma = true
     span
       a(href="#disqus_thread") Comments
-  .row.post-author
+  .row.author-small-image
     a(href="/blog/author/"+obj.author.slug)
       if obj.author._doc.image != "{}"
         img(src=obj.author._doc.image.url)
