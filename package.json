@@ -1,6 +1,6 @@
 {
   "name": "keystone-blog",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "A Node.js module for quickly and easily loading a blog into an existing Keystone.js implementation.",
   "main": "keystone-blog.js",
   "keywords": [
