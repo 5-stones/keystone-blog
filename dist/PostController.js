@@ -253,15 +253,14 @@ var PostController = (function (_Binder) {
   }, {
     key: '_buildIndexQuery',
     value: function _buildIndexQuery(page, sortBy, tagObject) {
-      console.log("query being built");
+      var perPage = this.perPage;
+      var maxPages = this.maxPages;
+
       var query = _KeystoneHelper2.default.getKeystone().list('BlogPost').paginate({
         page: page,
         perPage: perPage,
         maxPages: maxPages
       }).populate('tags').populate('author');
-
-      var perPage = this.perPage;
-      var maxPages = this.maxPages;
 
       if (sortBy == null) {
         query = query.sort('-createdAt');
