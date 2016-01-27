@@ -27,7 +27,8 @@ BlogPost.add({
   preview: { type: Types.Textarea, required: true, initial: true },
   body: { type: Types.Markdown, required: true, initial: true },
 	createdAt: { type: Date, default: Date.now, noedit: true },
-  views: {type: Number, default: 0}
+  views: {type: Number, default: 0},
+  active: { type: Boolean, default: true }
 });
 
 BlogPost.defaultSort = '-createdAt';

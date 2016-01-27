@@ -98,7 +98,6 @@ var PostController = (function (_Binder) {
       if (req.tag) {
         var tag;
         var tagFilter = req.tag;
-        console.log("tag: " + tagFilter);
         promise = _KeystoneHelper2.default.getKeystone().list('Tag').model.findOne({ 'slug': tagFilter }).exec(function (err, result) {
           tag = result;
         });
@@ -178,7 +177,7 @@ var PostController = (function (_Binder) {
   }, {
     key: 'popularPosts',
     value: function popularPosts(req, res, limit) {
-      var query = _KeystoneHelper2.default.getKeystone().list('BlogPost').model.find().populate('tags').populate('author').sort('-views');
+      var query = _KeystoneHelper2.default.getKeystone().list('BlogPost').model.find({ 'active': true }).populate('tags').populate('author').sort('-views');
       if (typeof limit !== 'undefined') {
         query.limit(limit);
       }
@@ -260,7 +259,7 @@ var PostController = (function (_Binder) {
         page: page,
         perPage: perPage,
         maxPages: maxPages
-      }).populate('tags').populate('author');
+      }).where('active', true).populate('tags').populate('author');
 
       if (sortBy == null) {
         query = query.sort('-createdAt');
@@ -272,7 +271,6 @@ var PostController = (function (_Binder) {
 
       if (tagObject != null) {
         query = query.where('tags').in([tagObject]);
-        console.log("query: " + query);
       }
 
       return query;
