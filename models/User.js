@@ -10,8 +10,8 @@ if (!User.fields["name"]) {
 if (!User.fields["image"]) {
   User.add({ image: { type: Types.S3File,
     s3path: '/images/users',
-    allowedTypes: ['image/png'],
-    filename: function(user, filename) { return user.slug+'.png'; }
+    allowedTypes: ['image/png', 'image/jpeg', 'image/jpg'],
+    filename: function(user, filename) { return user.slug+filename; }
   }});
 }
 if (!User.fields["bio"]) {

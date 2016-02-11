@@ -20,8 +20,8 @@ BlogPost.add({
 
   featuredImage: { type: Types.S3File,
     s3path: '/images/blog',
-    allowedTypes: ['image/png'],
-    filename: function(post, filename) { return post.slug+'.png'; }
+    allowedTypes: ['image/png', 'image/jpeg', 'image/jpg'],
+    filename: function(post, filename) { return post.slug+filename; }
   },
 
   preview: { type: Types.Textarea, required: true, initial: true },
